@@ -13,7 +13,7 @@ pipeline {
             steps {
                 withAWS(credentials: 'demo-credentials', region: 'ap-southeast-1') {
                     sh 'echo "hello KB">hello.txt'
-                    s3Upload acl: 'Private', bucket: 'demo-bucket', file: 'hello.txt'
+                    s3Upload acl: 'Private', bucket: 'dhivya-test-1', file: 'hello.txt'
             }
         }
         }
