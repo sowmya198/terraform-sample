@@ -1,57 +1,55 @@
-data "aws_vpc" "default_vpc" {
-  default = true
-}
-
-data "aws_subnet" "my_subnet" {
-  vpc_id            = data.aws_vpc.default_vpc.id
-  availability_zone = "ap-southeast-1a"
-}
-data "aws_subnet" "my_subnet_2" {
-  vpc_id            = data.aws_vpc.default_vpc.id
-  availability_zone = "ap-southeast-1b"
-}
-
-data "aws_subnet_ids" "default_subnet" {
-  vpc_id = data.aws_vpc.default_vpc.id
-}
-
-data "aws_ami" "ubuntu" {
-
+data "aws_ami" "ubuntu_imge" {
   filter {
-    name   = "name"
+    name  = "name"
     values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-
-  filter {
-    name   = "root-device-type"
-    values = ["ebs"]
-  }
   owners      = ["099720109477"]
   most_recent = true
 }
 
-resource "aws_launch_configuration" "launch_conf" {
-  name          = "sowmya-launch-config"
-  image_id      = data.aws_ami.ubuntu.id
-  instance_type = "t2.micro"
-  lifecycle {
-    create_before_destroy = true
-  }
+data "aws_vpc" "default_vpc" {
+  default = true
 }
 
-resource "aws_autoscaling_group" "my_asg" {
-  name                 = "sowmya-asg"
-  launch_configuration = aws_launch_configuration.launch_conf.name
-  min_size             = 1
-  max_size             = 3
-  desired_capacity     = 2
-  vpc_zone_identifier = [data.aws_subnet.my_subnet.id,data.aws_subnet.my_subnet_2.id]
-  lifecycle {
-    create_before_destroy = true
-  }
+data "aws_subnet_ids" "default_subnet" {
+  vpc_id = data.aws_vpc.default_vpc.id
 }
 
+resource "aws_security_group" "pair5sg" {
+  vpc_id = data.aws_vpc.default_vpc.id
+
+  ingress {
+    description = "Created from terraform"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.myip]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+}
+
+resource "aws_instance" "pair5-tf-ec2" {
+  for_each               = data.aws_subnet_ids.default_subnet.ids
+  ami                    = data.aws_ami.ubuntu_imge.id
+  instance_type          = "t3.micro"
+  key_name               = "pair5-key"
+  vpc_security_group_ids = [aws_security_group.pair5sg.id]
+  monitoring             = true
+
+  root_block_device {
+    volume_size           = var.EC2_ROOT_VOLUME_SIZE
+    volume_type           = var.EC2_ROOT_VOLUME_TYPE
+    delete_on_termination = true
+  }
+}
