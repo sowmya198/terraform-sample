@@ -43,7 +43,7 @@ resource "aws_instance" "pair5-tf-ec2" {
   for_each               = data.aws_subnet_ids.default_subnet.ids
   ami                    = data.aws_ami.ubuntu_imge.id
   instance_type          = "t3.micro"
-  key_name               = "pair5-key"
+  key_name               = "sowmya-key-pair"
   vpc_security_group_ids = [aws_security_group.pair5sg.id]
   monitoring             = true
 
