@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-//     environment {
-//         AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
-//         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-//         AWS_DEFAULT_REGION    = "ap-southeast-1"
-//     }
 
     stages {
         stage('Checkout') {
@@ -19,52 +14,10 @@ pipeline {
                 withAWS(credentials: 'demo-credentials', region: 'ap-southeast-1') {
                     sh 'echo "hello KB">hello.txt'
                     s3Upload acl: 'Private', bucket: 'demo-bucket', file: 'hello.txt'
-//                 terraformInit()
             }
         }
-        stage('Plan') {
-            steps {
-                terraformPlan()
-            }
-        }
-        stage('Approval') {
-            steps {
-                input(message: 'Apply Terraform ?')
-            }
-        }
-        stage('Apply') {
-            steps {
-                terraformApply()
-            }
-        }
-        stage('Destroy') {
-            steps {
-                terraformDestroy()
-            }
         }
     }
-    post {
-        always {
-            echo 'Deleting Directory!'
-            deleteDir()
-        }
-    }
+    
 }
-
-def terraformInit() {
-    sh('terraform init')
-}
-
-def terraformPlan() {
-    sh('terraform plan')
-}
-
-def terraformApply() {
-    sh('terraform apply')
-}
-
-def terraformDestroy() {
-    sh('terraform destroy')
-}
-
 
