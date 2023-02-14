@@ -34,6 +34,11 @@ pipeline {
                 terraformApply()
             }
         }
+        stage('Destroy') {
+            steps {
+                terraformDestroy()
+            }
+        }
     }
     post {
         always {
@@ -53,6 +58,10 @@ def terraformPlan() {
 
 def terraformApply() {
     sh("terraform apply")
+}
+
+def terraformDestroy() {
+    sh("terraform destroy")
 }
 
 
