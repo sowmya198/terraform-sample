@@ -49,19 +49,19 @@ pipeline {
 }
 
 def terraformInit() {
-    sh("terraform init")
+    sh('terraform init')
 }
 
 def terraformPlan() {
-    sh("terraform plan")
+    sh('terraform plan')
 }
 
 def terraformApply() {
-    sh("terraform apply")
+    sh('terraform apply')
 }
 
 def terraformDestroy() {
-    sh("terraform destroy")
+    sh('terraform destroy')
 }
 
 
