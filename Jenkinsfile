@@ -1,11 +1,11 @@
 pipeline {
     agent any
 
-    environment {
-        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-        AWS_DEFAULT_REGION    = "ap-southeast-1"
-    }
+//     environment {
+//         AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+//         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+//         AWS_DEFAULT_REGION    = "ap-southeast-1"
+//     }
 
     stages {
         stage('Checkout') {
@@ -16,7 +16,10 @@ pipeline {
         }
         stage('Init') {
             steps {
-                terraformInit()
+                withAWS(credentials: 'demo-credentials', region: 'ap-southeast-1') {
+                    sh 'echo "hello KB">hello.txt'
+                    s3Upload acl: 'Private', bucket: 'demo-bucket', file: 'hello.txt'
+//                 terraformInit()
             }
         }
         stage('Plan') {
